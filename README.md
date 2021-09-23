@@ -1,2 +1,3 @@
-# MMIA
-MPC-MKS 21/22Z
+# MKS
+
+Repository for the winter course MPC-MKS 21/22
