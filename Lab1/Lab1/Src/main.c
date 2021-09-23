@@ -18,6 +18,12 @@
  */
 
 #include <stdint.h>
+#include "stm32f0xx.h"
+
+// set variable for morse code
+const uint32_t SOS_code = 0b10101001110111011100101010000000;
+// set help var to compare if the output should be 1 or 0
+const uint32_t help_var = 0b10000000000000000000000000000000;
 
 #if !defined(__SOFT_FP__) && defined(__ARM_FP)
   #warning "FPU is not initialized, but the project is compiling for an FPU. Please initialize the FPU before use."
@@ -25,6 +31,45 @@
 
 int main(void)
 {
-    /* Loop forever */
-	for(;;);
+	RCC->AHBENR |= RCC_AHBENR_GPIOAEN;
+	GPIOA->MODER |= GPIO_MODER_MODER5_0;
+
+	/* Loop forever */
+	for(;;)
+	{
+
+//		/*BLINK LD2 at PA5*/
+//
+//		//	Option #1 - set and reset the LED
+//		//		GPIOA->BSRR = (1<<5); 	// set
+//		//		GPIOA->BRR = (1<<5); 	// reset
+//
+//		//  Option #2 - changes itself
+//		GPIOA->ODR ^= (1<<5); 	// toggle
+//		for (volatile uint32_t i = 0; i<200000; i++) {}
+
+
+		/*MORSE CODE FOR SOS ... --- ...*/
+
+		uint32_t help = help_var; // set help so it wont change the original value
+
+		for (uint32_t i = 0; i<32; i++)
+		{
+			if (SOS_code & help) // Compare SOS_code and help var
+			{
+				GPIOA->BSRR = (1<<5);	// set LED on
+			}
+
+			else
+			{
+				GPIOA->BRR = (1<<5);	// set LED off
+			}
+
+			for (volatile uint32_t i = 0; i<100000; i++) {} //wait
+
+			help = (help >> 1); //shift pointer to next value in morse code
+		}
+
+
+	}
 }
