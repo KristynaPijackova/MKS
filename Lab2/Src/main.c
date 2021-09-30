@@ -25,6 +25,7 @@ volatile  uint32_t Tick; // variable for SysTick
 #define LED_TIME_BLINK 300 // flasher period
 #define LED_TIME_SHORT 100 // short time for S2
 #define LED_TIME_LONG 1000 // long time for S1
+#define BUTTON_TIME_DELAY 40
 
 
 #if !defined(__SOFT_FP__) && defined(__ARM_FP)
@@ -63,37 +64,42 @@ void flasher(void)
 
 void button (void)
 {
+	static uint32_t delay_button; // for delay 40ms
 	static uint32_t off_time; // variable for counting off_time
 
-	static uint32_t old_s1; // for comparing the
-	uint32_t new_s1 = GPIOC->IDR & (1<<1); // push B1
 
-	static uint32_t old_s2; // for comparing the buttons
-	uint32_t new_s2 = GPIOC->IDR & (1<<0); // push B2
-
-	/*compare the states of old and new s1 and s2*/
-	/*turn the LED2 on if buttons pushed*/
-	if (old_s1 && !new_s1) // falling edge
+	if (Tick > delay_button + BUTTON_TIME_DELAY)
 	{
-		off_time = Tick + LED_TIME_LONG;
-		GPIOB->BSRR = (1<<0);
+		static uint32_t old_s1; // for comparing the button
+		static uint32_t old_s2; // for comparing the button
+		uint32_t new_s1 = GPIOC->IDR & (1<<1); // push B1
+		uint32_t new_s2 = GPIOC->IDR & (1<<0); // push B2
+
+		/*compare the states of old and new s1 */
+		/*turn the LED2 on if buttons pushed*/
+		if (old_s1 && !new_s1) // falling edge
+		{
+			off_time = Tick + LED_TIME_LONG;
+			GPIOB->BSRR = (1<<0);
+		}
+		old_s1 = new_s1;
+
+		/*compare the states of old and new s2*/
+		/*turn the LED2 on if buttons pushed*/
+		if (old_s2 && !new_s2) // falling edge
+		{
+			off_time = Tick + LED_TIME_SHORT;
+			GPIOB->BSRR = (1<<0);
+		}
+		old_s2 = new_s2;
+
+		/*Check if it is time tu turn on the LED2*/
+		if (Tick > off_time)
+		{
+		GPIOB->BRR = (1<<0);
+		}
+		delay_button = Tick;
 	}
-
-	if (old_s2 && !new_s2) // falling edge
-	{
-		off_time = Tick + LED_TIME_SHORT;
-		GPIOB->BSRR = (1<<0);
-	}
-
-	old_s1 = new_s1;
-	old_s2 = new_s2;
-
-	/*Check if it is time tu turn on the LED2*/
-	if (Tick > off_time)
-	{
-	GPIOB->BRR = (1<<0);
-	}
-
 }
 
 
