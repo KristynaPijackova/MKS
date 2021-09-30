@@ -25,7 +25,8 @@ volatile  uint32_t Tick; // variable for SysTick
 #define LED_TIME_BLINK 300 // flasher period
 #define LED_TIME_SHORT 100 // short time for S2
 #define LED_TIME_LONG 1000 // long time for S1
-#define BUTTON_TIME_DELAY 40
+#define BUTTON_TIME_DELAY 40 // time for the button fction for simple debouncing
+#define BUTTON_TIME_DELAY_ADV 5	// for more advanced delay in button fction
 
 
 #if !defined(__SOFT_FP__) && defined(__ARM_FP)
@@ -62,30 +63,72 @@ void flasher(void)
 	}
 }
 
+//void button (void)
+//{
+//	static uint32_t delay_button; // for delay 40ms
+//	static uint32_t off_time; // variable for counting off_time
+//
+//	if (Tick > delay_button + BUTTON_TIME_DELAY)
+//	{
+//		static uint32_t old_s1; // for comparing the button
+//		static uint32_t old_s2; // for comparing the button
+//
+//		uint32_t new_s1 = GPIOC->IDR & (1<<1); // push B1
+//		uint32_t new_s2 = GPIOC->IDR & (1<<0); // push B2
+//
+//		/*compare the states of old and new s1 */
+//		/*turn the LED2 on if buttons pushed*/
+//		if (old_s1 && !new_s1) // falling edge
+//		{
+//			off_time = Tick + LED_TIME_LONG;
+//			GPIOB->BSRR = (1<<0);
+//		}
+//		old_s1 = new_s1;
+//
+//		/*compare the states of old and new s2*/
+//		/*turn the LED2 on if buttons pushed*/
+//		if (old_s2 && !new_s2) // falling edge
+//		{
+//			off_time = Tick + LED_TIME_SHORT;
+//			GPIOB->BSRR = (1<<0);
+//		}
+//		old_s2 = new_s2;
+//
+//		/*Check if it is time tu turn on the LED2*/
+//		if (Tick > off_time)
+//		{
+//		GPIOB->BRR = (1<<0);
+//		}
+//
+//		delay_button = Tick;
+//	}
+//}
+
+/*Advanced debouncing*/
+
 void button (void)
 {
 	static uint32_t delay_button; // for delay 40ms
+	static uint32_t delay_button_adv; // for delay 5ms
 	static uint32_t off_time; // variable for counting off_time
 
-
-	if (Tick > delay_button + BUTTON_TIME_DELAY)
+	if (Tick > delay_button_adv + BUTTON_TIME_DELAY_ADV)
 	{
-		static uint32_t old_s1; // for comparing the button
-		static uint32_t old_s2; // for comparing the button
-		uint32_t new_s1 = GPIOC->IDR & (1<<1); // push B1
-		uint32_t new_s2 = GPIOC->IDR & (1<<0); // push B2
-
-		/*compare the states of old and new s1 */
-		/*turn the LED2 on if buttons pushed*/
-		if (old_s1 && !new_s1) // falling edge
+		static uint16_t debounce = 0xFFFF; // all 1
+		debounce <<=1; // LSB in debounce 0
+		if (GPIOC->IDR & (1<<1)) debounce |= 0x0001;
+		if (debounce == 0x8000)
 		{
 			off_time = Tick + LED_TIME_LONG;
 			GPIOB->BSRR = (1<<0);
 		}
-		old_s1 = new_s1;
+	}
 
-		/*compare the states of old and new s2*/
-		/*turn the LED2 on if buttons pushed*/
+	if (Tick > delay_button + BUTTON_TIME_DELAY)
+	{
+		static uint32_t old_s2; // for comparing the button
+		uint32_t new_s2 = GPIOC->IDR & (1<<0); // push B2
+
 		if (old_s2 && !new_s2) // falling edge
 		{
 			off_time = Tick + LED_TIME_SHORT;
@@ -93,15 +136,14 @@ void button (void)
 		}
 		old_s2 = new_s2;
 
-		/*Check if it is time tu turn on the LED2*/
 		if (Tick > off_time)
 		{
 		GPIOB->BRR = (1<<0);
 		}
+
 		delay_button = Tick;
 	}
 }
-
 
 
 int main(void)
