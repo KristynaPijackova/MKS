@@ -30,5 +30,15 @@ int main(void)
 {
 	/*Call the fction we written in sct.c and set hex value to write bye on the 7-seg*/
 	sct_init();
-	sct_led(0x7A5C36DE);
+//	sct_led(0x7A5C36DE);
+	while(1)
+	{
+		for (uint8_t i=0; i<10; i++)
+		{
+			sct_value(i*111);
+
+			for(volatile uint32_t dumb_delay=0; dumb_delay<1000000; dumb_delay++)
+			{}
+		}
+	}
 }
