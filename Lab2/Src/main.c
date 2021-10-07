@@ -20,13 +20,18 @@
 #include <stdint.h>
 #include "stm32f0xx.h"
 
-volatile  uint32_t Tick; // variable for SysTick
+volatile  uint32_t Tick;
 
-#define LED_TIME_BLINK 300 // flasher period
-#define LED_TIME_SHORT 100 // short time for S2
-#define LED_TIME_LONG 1000 // long time for S1
-#define BUTTON_TIME_DELAY 40 // time for the button fction for simple debouncing
-#define BUTTON_TIME_DELAY_ADV 5	// for more advanced delay in button fction
+
+#define LED_TIME_BLINK 300
+
+#define LED_TIME_SHORT 100
+
+#define LED_TIME_LONG 1000
+
+#define BUTTON_TIME_DELAY 40
+
+#define BUTTON_TIME_DELAY_ADVANCED 5
 
 
 #if !defined(__SOFT_FP__) && defined(__ARM_FP)
@@ -35,24 +40,25 @@ volatile  uint32_t Tick; // variable for SysTick
 
 /*  Add here the Interrupt Handler for the used peripheral(s) (PPP), for the  */
 /*  available peripheral interrupt handler's name please refer to the startup */
+
 void EXTI0_1_IRQHandler(void)
 {
 	if (EXTI->PR & EXTI_PR_PR0)
-	{ // check line 0 has triggered the IT
-		EXTI->PR |= EXTI_PR_PR0; // clear the pending bit
-		GPIOB->ODR ^= (1<<0); // toggle LED2 at PB0
+	{
+		EXTI->PR |= EXTI_PR_PR0;
+		GPIOB->ODR ^= (1<<0);
 	}
 }
 
-/*Timer with SysTick*/
+/*SysTick*/
 void SysTick_Handler(void)
 {
-	Tick++; // period 1ms
+	Tick++;
 }
 
-/* LED flasher*/
+/*LED blink*/
 
-void flasher(void)
+void blink(void)
 {
 	static uint32_t delay;
 
@@ -63,59 +69,62 @@ void flasher(void)
 	}
 }
 
-//void button (void)
-//{
-//	static uint32_t delay_button; // for delay 40ms
-//	static uint32_t off_time; // variable for counting off_time
-//
-//	if (Tick > delay_button + BUTTON_TIME_DELAY)
-//	{
-//		static uint32_t old_s1; // for comparing the button
-//		static uint32_t old_s2; // for comparing the button
-//
-//		uint32_t new_s1 = GPIOC->IDR & (1<<1); // push B1
-//		uint32_t new_s2 = GPIOC->IDR & (1<<0); // push B2
-//
-//		/*compare the states of old and new s1 */
-//		/*turn the LED2 on if buttons pushed*/
-//		if (old_s1 && !new_s1) // falling edge
-//		{
-//			off_time = Tick + LED_TIME_LONG;
-//			GPIOB->BSRR = (1<<0);
-//		}
-//		old_s1 = new_s1;
-//
-//		/*compare the states of old and new s2*/
-//		/*turn the LED2 on if buttons pushed*/
-//		if (old_s2 && !new_s2) // falling edge
-//		{
-//			off_time = Tick + LED_TIME_SHORT;
-//			GPIOB->BSRR = (1<<0);
-//		}
-//		old_s2 = new_s2;
-//
-//		/*Check if it is time tu turn on the LED2*/
-//		if (Tick > off_time)
-//		{
-//		GPIOB->BRR = (1<<0);
-//		}
-//
-//		delay_button = Tick;
-//	}
-//}
+void tlacitko (void)
+{
+	static uint32_t delay_tlacitko; //delay 40ms
+
+	static uint32_t off_time; // counting off_time
+
+	if (Tick > delay_tlacitko + BUTTON_TIME_DELAY)
+	{
+		static uint32_t old_s1;
+
+		static uint32_t old_s2;
+
+		uint32_t new_s1 = GPIOC->IDR & (1<<1); // button B1
+
+		uint32_t new_s2 = GPIOC->IDR & (1<<0); // button B2
+
+
+		if (old_s1 && !new_s1) // falling edge
+		{
+			off_time = Tick + LED_TIME_SHORT;
+			GPIOB->BSRR = (1<<0);
+		}
+		old_s1 = new_s1;
+
+
+		if (old_s2 && !new_s2) // falling edge
+		{
+			off_time = Tick + LED_TIME_LONG;
+			GPIOB->BSRR = (1<<0);
+		}
+		old_s2 = new_s2;
+
+
+		if (Tick > off_time)
+		{
+		GPIOB->BRR = (1<<0);
+		}
+
+		delay_tlacitko = Tick;
+	}
+}
 
 /*Advanced debouncing*/
 
 void button (void)
 {
-	static uint32_t delay_button; // for delay 40ms
-	static uint32_t delay_button_adv; // for delay 5ms
-	static uint32_t off_time; // variable for counting off_time
+	static uint32_t delay_tlacitko; // delay 40ms
+	static uint32_t delay_button_advanced; // delay 5ms
+	static uint32_t off_time; //counting off_time
 
-	if (Tick > delay_button_adv + BUTTON_TIME_DELAY_ADV)
+	if (Tick > delay_button_advanced + BUTTON_TIME_DELAY_ADVANCED)
 	{
-		static uint16_t debounce = 0xFFFF; // all 1
-		debounce <<=1; // LSB in debounce 0
+		static uint16_t debounce = 0xFFFF; // 1
+
+		debounce <<=1;                    // LSB  0
+
 		if (GPIOC->IDR & (1<<1)) debounce |= 0x0001;
 		if (debounce == 0x8000)
 		{
@@ -124,7 +133,7 @@ void button (void)
 		}
 	}
 
-	if (Tick > delay_button + BUTTON_TIME_DELAY)
+	if (Tick > delay_tlacitko + BUTTON_TIME_DELAY)
 	{
 		static uint32_t old_s2; // for comparing the button
 		uint32_t new_s2 = GPIOC->IDR & (1<<0); // push B2
@@ -141,15 +150,15 @@ void button (void)
 		GPIOB->BRR = (1<<0);
 		}
 
-		delay_button = Tick;
+		delay_tlacitko = Tick;
 	}
 }
 
 
 int main(void)
 {
-	/* Initialize SysTick Timer */
-	SysTick_Config(8000); // 1ms
+
+	SysTick_Config(8000); // 1ms SysTick Timer
 
 	/*Enable registers and set LEDs and PullUps*/
 	RCC->AHBENR |= RCC_AHBENR_GPIOAEN | RCC_AHBENR_GPIOBEN | RCC_AHBENR_GPIOCEN; // enable register GPIO A to B
@@ -168,8 +177,8 @@ int main(void)
 	// NVIC_EnableIRQ(EXTI0_1_IRQn); // enable interupt request for EXTI0_1
 
 	while(1){
-		flasher();
-		button();
+		blink();
+		tlacitko();
 	}
 
 }
