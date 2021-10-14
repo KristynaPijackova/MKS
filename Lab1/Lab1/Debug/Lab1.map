@@ -174,7 +174,7 @@ Discarded input sections
  .debug_macro   0x0000000000000000       0x16 ./Src/syscalls.o
  .debug_macro   0x0000000000000000       0xce ./Src/syscalls.o
  .debug_line    0x0000000000000000      0x816 ./Src/syscalls.o
- .debug_str     0x0000000000000000     0x8ddf ./Src/syscalls.o
+ .debug_str     0x0000000000000000     0x8deb ./Src/syscalls.o
  .comment       0x0000000000000000       0x54 ./Src/syscalls.o
  .debug_frame   0x0000000000000000      0x244 ./Src/syscalls.o
  .ARM.attributes
@@ -236,7 +236,7 @@ Discarded input sections
  .debug_macro   0x0000000000000000       0x6a ./Src/sysmem.o
  .debug_macro   0x0000000000000000      0x1df ./Src/sysmem.o
  .debug_line    0x0000000000000000      0x50c ./Src/sysmem.o
- .debug_str     0x0000000000000000     0x61b2 ./Src/sysmem.o
+ .debug_str     0x0000000000000000     0x61be ./Src/sysmem.o
  .comment       0x0000000000000000       0x54 ./Src/sysmem.o
  .debug_frame   0x0000000000000000       0x30 ./Src/sysmem.o
  .ARM.attributes
@@ -617,18 +617,18 @@ LOAD c:/appz/st/stm32cubeide_1.2.0/stm32cubeide/plugins/com.st.stm32cube.ide.mcu
  .debug_macro   0x0000000000004691       0x3c ./Src/main.o
  .debug_macro   0x00000000000046cd       0xba ./Src/system_stm32f0xx.o
 
-.debug_line     0x0000000000000000      0xa4e
- .debug_line    0x0000000000000000      0x4bb ./Src/main.o
- .debug_line    0x00000000000004bb      0x50f ./Src/system_stm32f0xx.o
- .debug_line    0x00000000000009ca       0x84 ./Startup/startup_stm32f030r8tx.o
+.debug_line     0x0000000000000000      0xa7e
+ .debug_line    0x0000000000000000      0x4d3 ./Src/main.o
+ .debug_line    0x00000000000004d3      0x527 ./Src/system_stm32f0xx.o
+ .debug_line    0x00000000000009fa       0x84 ./Startup/startup_stm32f030r8tx.o
 
-.debug_str      0x0000000000000000    0x181a4
- .debug_str     0x0000000000000000    0x180c5 ./Src/main.o
-                                      0x18229 (size before relaxing)
- .debug_str     0x00000000000180c5       0xae ./Src/system_stm32f0xx.o
-                                      0x18283 (size before relaxing)
- .debug_str     0x0000000000018173       0x31 ./Startup/startup_stm32f030r8tx.o
-                                         0x53 (size before relaxing)
+.debug_str      0x0000000000000000    0x181b0
+ .debug_str     0x0000000000000000    0x180d1 ./Src/main.o
+                                      0x18235 (size before relaxing)
+ .debug_str     0x00000000000180d1       0xae ./Src/system_stm32f0xx.o
+                                      0x1828f (size before relaxing)
+ .debug_str     0x000000000001817f       0x31 ./Startup/startup_stm32f030r8tx.o
+                                         0x5f (size before relaxing)
 
 .comment        0x0000000000000000       0x53
  .comment       0x0000000000000000       0x53 ./Src/main.o
