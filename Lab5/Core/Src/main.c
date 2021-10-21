@@ -24,6 +24,7 @@
 /* USER CODE BEGIN Includes */
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -41,6 +42,8 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
+I2C_HandleTypeDef hi2c1;
+
 UART_HandleTypeDef huart2;
 DMA_HandleTypeDef hdma_usart2_rx;
 
@@ -51,6 +54,7 @@ static uint8_t uart_rx_buf[RX_BUFFER_LEN];
 static volatile uint16_t uart_rx_read_ptr = 0;
 #define uart_rx_write_ptr (RX_BUFFER_LEN - hdma_usart2_rx.Instance->CNDTR)
 #define CMD_BUFFER_LEN 256
+#define EEPROM_ADDR 0xA0 // adresa z datasheetu pro eeprom - piny a0 a a2 jsou na GND 0b10100000
 
 /* USER CODE END PV */
 
@@ -59,6 +63,7 @@ void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_DMA_Init(void);
 static void MX_USART2_UART_Init(void);
+static void MX_I2C1_Init(void);
 /* USER CODE BEGIN PFP */
 
 
@@ -68,6 +73,7 @@ static void MX_USART2_UART_Init(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
+// aby fungoval printf
 int _write(int file, char const *buf, int n)
 {
  /* stdout redirection to UART2 */
@@ -77,8 +83,9 @@ int _write(int file, char const *buf, int n)
 
 void uart_process_command(char *cmd)
 {
-//	printf("prijato: '%s'\n", cmd);
+//	printf("prijato: '%s'\n", cmd); // vypise zpatky co poslu + prijato:
 
+	/*ctu ruzne stavy co mu poslu a bud se se mnou bavi nebo zapina a vypina ledky*/
 	char *token;
 	token = strtok(cmd, " ");
 
@@ -127,12 +134,67 @@ void uart_process_command(char *cmd)
 		{
 			printf("Status 1: %i, Status2: %i \n", stat1, stat2);
 		}
-
-
 	}
+
+	else if (strcasecmp(token, "READ") == 0)
+	{
+		token = strtok(NULL, " ");
+
+		uint8_t value = 0;
+		uint16_t addr = 0;
+
+		addr = atoi(token);
+
+		HAL_I2C_Mem_Read(&hi2c1, EEPROM_ADDR, addr, I2C_MEMADD_SIZE_16BIT, &value, 1, 1000);
+		printf("Adresa 0x%x = 0x%x \n", addr, value);
+	}
+
+	else if (strcasecmp(token, "WRITE") == 0)
+	{
+		uint16_t addr = 0;
+		uint8_t value = 0;
+
+		token = strtok(NULL, " ");
+		addr = atoi(token);
+
+		token = strtok(NULL, " ");
+		value = atoi(token);
+
+		/* Check if the EEPROM is ready for a new operation */
+		while (HAL_I2C_IsDeviceReady(&hi2c1, EEPROM_ADDR, 300, 1000) == HAL_TIMEOUT) {}
+		HAL_I2C_Mem_Write(&hi2c1, EEPROM_ADDR, addr, I2C_MEMADD_SIZE_16BIT, &value, 1, 1000);
+
+		printf("OK \n");
+	}
+
+	else if (strcasecmp(token, "DUMP") == 0)
+	{
+		uint16_t addr = 0;
+		uint8_t value = 0;
+
+		// set memory to 0 by "looping" through the addresses and writing 0s to them
+		for(uint8_t i = 0; i<16; i++)
+		{
+			addr = i;
+			value = 0;
+
+			HAL_I2C_Mem_Read(&hi2c1, EEPROM_ADDR, addr, I2C_MEMADD_SIZE_16BIT, &value, 1, 1000);
+
+
+				printf("0x%02x ", value);
+
+				if (i==8){printf("\n");}
+
+
+		}
+		printf("\n");
+	}
+
 
 }
 
+
+//  ukladam tisknutelne znaky ascii kodu 32-126 do dalsiho bufferu
 static void uart_byte_available(uint8_t c)
 {
  static uint16_t cnt;
@@ -181,9 +243,11 @@ int main(void)
   MX_GPIO_Init();
   MX_DMA_Init();
   MX_USART2_UART_Init();
+  MX_I2C1_Init();
   /* USER CODE BEGIN 2 */
 
   HAL_UART_Receive_DMA(&huart2, uart_rx_buf, RX_BUFFER_LEN);
+
 
   /* USER CODE END 2 */
 
@@ -200,11 +264,13 @@ int main(void)
 //	HAL_UART_Transmit(&huart2, &c, 1, HAL_MAX_DELAY);
 //  }
 
+	// zpracovava jednotlive bajty z bufferu
 	while (uart_rx_read_ptr != uart_rx_write_ptr) {
 	uint8_t b = uart_rx_buf[uart_rx_read_ptr];
 	if (++uart_rx_read_ptr >= RX_BUFFER_LEN) uart_rx_read_ptr = 0; // increase read pointer
 	uart_byte_available(b); // process every received byte with the RX state machine
 	}
+
 
 
   }
@@ -219,6 +285,7 @@ void SystemClock_Config(void)
 {
   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
   RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
+  RCC_PeriphCLKInitTypeDef PeriphClkInit = {0};
 
   /** Initializes the RCC Oscillators according to the specified parameters
   * in the RCC_OscInitTypeDef structure.
@@ -246,6 +313,58 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
+  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_I2C1;
+  PeriphClkInit.I2c1ClockSelection = RCC_I2C1CLKSOURCE_HSI;
+  if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
+  {
+    Error_Handler();
+  }
+}
+
+/**
+  * @brief I2C1 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_I2C1_Init(void)
+{
+
+  /* USER CODE BEGIN I2C1_Init 0 */
+
+  /* USER CODE END I2C1_Init 0 */
+
+  /* USER CODE BEGIN I2C1_Init 1 */
+
+  /* USER CODE END I2C1_Init 1 */
+  hi2c1.Instance = I2C1;
+  hi2c1.Init.Timing = 0x2000090E;
+  hi2c1.Init.OwnAddress1 = 0;
+  hi2c1.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
+  hi2c1.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
+  hi2c1.Init.OwnAddress2 = 0;
+  hi2c1.Init.OwnAddress2Masks = I2C_OA2_NOMASK;
+  hi2c1.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
+  hi2c1.Init.NoStretchMode = I2C_NOSTRETCH_DISABLE;
+  if (HAL_I2C_Init(&hi2c1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /** Configure Analogue filter
+  */
+  if (HAL_I2CEx_ConfigAnalogFilter(&hi2c1, I2C_ANALOGFILTER_ENABLE) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /** Configure Digital filter
+  */
+  if (HAL_I2CEx_ConfigDigitalFilter(&hi2c1, 0) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN I2C1_Init 2 */
+
+  /* USER CODE END I2C1_Init 2 */
+
 }
 
 /**
