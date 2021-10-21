@@ -32,6 +32,12 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
+
+#define RX_BUFFER_LEN 64
+static uint8_t uart_rx_buf[RX_BUFFER_LEN];
+static volatile uint16_t uart_rx_read_ptr = 0;
+#define uart_rx_write_ptr (RX_BUFFER_LEN - hdma_usart2_rx.Instance->CNDTR)
+
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
