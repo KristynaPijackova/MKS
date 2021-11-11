@@ -465,7 +465,7 @@ void StartAcceleroTask(void const * argument)
 	  for (uint8_t i = 0; i < samples; i++)
 	  {
 		  lis2dw12_acceleration_raw_get(&lis2dw12, raw_acceleration);
-
+		  /*Condition to write to terminal each second*/
 		  if (HAL_GetTick()-last_time >= 1000)
 		  {
 			  printf("X=%d Y=%d Z=%d\n", raw_acceleration[0], raw_acceleration[1], raw_acceleration[2]);
