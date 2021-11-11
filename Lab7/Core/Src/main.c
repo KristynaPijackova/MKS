@@ -24,6 +24,9 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
+#include "lis2dw12_reg.h"
+#include "stdio.h"
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -41,6 +44,8 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
+I2C_HandleTypeDef hi2c1;
+
 UART_HandleTypeDef huart2;
 
 osThreadId defaultTaskHandle;
@@ -49,12 +54,48 @@ osThreadId AcceleroTaskHandle;
 osMessageQId xVisualQueueHandle;
 /* USER CODE BEGIN PV */
 
+
+/*Define context of the device*/
+static int32_t platform_write(void *handle, uint8_t reg, uint8_t *bufp, uint16_t len);
+static int32_t platform_read(void *handle, uint8_t reg, uint8_t *bufp, uint16_t len);
+static stmdev_ctx_t lis2dw12 =
+	{
+	 .write_reg = platform_write,
+	 .read_reg = platform_read,
+	 .handle = &hi2c1,
+	};
+
+/*
+ * Replace the functions "platform_write" and "platform_read" with your
+ * platform specific read and write function.
+ */
+static int32_t platform_write(void *handle, uint8_t reg, uint8_t *bufp, uint16_t len)
+{
+ HAL_I2C_Mem_Write(handle, LIS2DW12_I2C_ADD_H, reg, I2C_MEMADD_SIZE_8BIT, bufp, len, 1000);
+ return 0;
+}
+
+static int32_t platform_read(void *handle, uint8_t reg, uint8_t *bufp, uint16_t len)
+{
+ HAL_I2C_Mem_Read(handle, LIS2DW12_I2C_ADD_H, reg, I2C_MEMADD_SIZE_8BIT, bufp, len, 1000);
+ return 0;
+}
+
+/* include so that printf would work*/
+int _write(int file, char const *buf, int n)
+{
+ /* stdout redirection to UART2 */
+ HAL_UART_Transmit(&huart2, (uint8_t*)(buf), n, HAL_MAX_DELAY);
+ return n;
+}
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_USART2_UART_Init(void);
+static void MX_I2C1_Init(void);
 void StartDefaultTask(void const * argument);
 void StartVisualTask(void const * argument);
 void StartAcceleroTask(void const * argument);
@@ -97,6 +138,7 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_USART2_UART_Init();
+  MX_I2C1_Init();
   /* USER CODE BEGIN 2 */
 
   /* USER CODE END 2 */
@@ -162,6 +204,7 @@ void SystemClock_Config(void)
 {
   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
   RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
+  RCC_PeriphCLKInitTypeDef PeriphClkInit = {0};
 
   /** Initializes the RCC Oscillators according to the specified parameters
   * in the RCC_OscInitTypeDef structure.
@@ -189,6 +232,58 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
+  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_I2C1;
+  PeriphClkInit.I2c1ClockSelection = RCC_I2C1CLKSOURCE_HSI;
+  if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
+  {
+    Error_Handler();
+  }
+}
+
+/**
+  * @brief I2C1 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_I2C1_Init(void)
+{
+
+  /* USER CODE BEGIN I2C1_Init 0 */
+
+  /* USER CODE END I2C1_Init 0 */
+
+  /* USER CODE BEGIN I2C1_Init 1 */
+
+  /* USER CODE END I2C1_Init 1 */
+  hi2c1.Instance = I2C1;
+  hi2c1.Init.Timing = 0x2000090E;
+  hi2c1.Init.OwnAddress1 = 0;
+  hi2c1.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
+  hi2c1.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
+  hi2c1.Init.OwnAddress2 = 0;
+  hi2c1.Init.OwnAddress2Masks = I2C_OA2_NOMASK;
+  hi2c1.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
+  hi2c1.Init.NoStretchMode = I2C_NOSTRETCH_DISABLE;
+  if (HAL_I2C_Init(&hi2c1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /** Configure Analogue filter
+  */
+  if (HAL_I2CEx_ConfigAnalogFilter(&hi2c1, I2C_ANALOGFILTER_ENABLE) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /** Configure Digital filter
+  */
+  if (HAL_I2CEx_ConfigDigitalFilter(&hi2c1, 0) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN I2C1_Init 2 */
+
+  /* USER CODE END I2C1_Init 2 */
+
 }
 
 /**
@@ -304,18 +399,20 @@ void StartVisualTask(void const * argument)
   /* Infinite loop */
   for(;;)
   {
-
+	  /* Set condition when the LEDs will be turned on/off depending on the
+	   * value set in the accelerometer task
+	   * For range (-1000,1000) off, else either LED1 or LED2 is on*/
 	  int16_t msg;
 	  if (xQueueReceive(xVisualQueueHandle, &msg, portMAX_DELAY)) {
 		  if (msg<-1000)
 		  {
-			  HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, GPIO_PIN_RESET);
-			  HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, GPIO_PIN_SET);
+			  HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, GPIO_PIN_RESET);
+			  HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, GPIO_PIN_SET);
 		  }
 		  else if (msg>1000)
 		  {
-			  HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, GPIO_PIN_RESET);
-			  HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, GPIO_PIN_SET);
+			  HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, GPIO_PIN_RESET);
+			  HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, GPIO_PIN_SET);
 		  }
 		  else
 		  {
@@ -339,34 +436,66 @@ void StartVisualTask(void const * argument)
 void StartAcceleroTask(void const * argument)
 {
   /* USER CODE BEGIN StartAcceleroTask */
+
+
+	//	  uint16_t msg;
+	uint8_t whoamI = 0;
+	uint8_t samples;
+	int16_t raw_acceleration[3];
+
+
+
+	/*Initialize the accelerometer*/
+	lis2dw12_full_scale_set(&lis2dw12, LIS2DW12_2g);
+	lis2dw12_power_mode_set(&lis2dw12, LIS2DW12_CONT_LOW_PWR_LOW_NOISE_2);
+	lis2dw12_block_data_update_set(&lis2dw12, PROPERTY_ENABLE);
+	lis2dw12_fifo_mode_set(&lis2dw12, LIS2DW12_STREAM_MODE); // enable continuous FIFO
+	lis2dw12_data_rate_set(&lis2dw12, LIS2DW12_XL_ODR_25Hz); // enable part from power-down
+
+	// Check device ID
+	lis2dw12_device_id_get(&lis2dw12, &whoamI);
+	printf("LIS2DW12_ID %s\n", (whoamI == LIS2DW12_ID) ? "OK" : "FAIL");
+
   /* Infinite loop */
   for(;;)
   {
-//	  int16_t value;
-	  int16_t msg;
-//
-//	  for(uint8_t i=0; i<4; i++)
-//	  {
-//		  if (i==0){value=5000;}
-//		  else if (i==1){value=0;}
-//		  else if (i==2){value=-5000;}
-//		  else if (i==3){value=0;}
-//	  }
-//
-//	  value = xQueueSend(xVisualQueueHandle, &msg, 0);
+	  static uint32_t last_time;
+	  // Sent the read values (once per 50ms) of the accelerometer but sent it to termite once per 1sec
+	  lis2dw12_fifo_data_level_get(&lis2dw12, &samples);
+	  for (uint8_t i = 0; i < samples; i++)
+	  {
+		  lis2dw12_acceleration_raw_get(&lis2dw12, raw_acceleration);
+
+		  if (HAL_GetTick()-last_time >= 1000)
+		  {
+			  printf("X=%d Y=%d Z=%d\n", raw_acceleration[0], raw_acceleration[1], raw_acceleration[2]);
+			  last_time = HAL_GetTick();
+		  }
+	  }
+	  // sent the accelerometer value to queue each 50ms
+	  xQueueSend(xVisualQueueHandle, &raw_acceleration[0], 0);
+	  osDelay(50);
+
+
+	  /*Demo testing if the communication works by directly
+	   * setting the sent values - not passed by the accelerometer*/
+//	  msg=0;
+//	  xQueueSend(xVisualQueueHandle, &msg, 0);
 //	  osDelay(300);
-	  msg=0;
-	  xQueueSend(xVisualQueueHandle, &msg, 0);
-	  osDelay(300);
-	  msg=5000;
-	  xQueueSend(xVisualQueueHandle, &msg, 0);
-	  osDelay(300);
-	  msg=0;
-	  xQueueSend(xVisualQueueHandle, &msg, 0);
-	  osDelay(300);
-	  msg=-5000;
-	  xQueueSend(xVisualQueueHandle, &msg, 0);
-	  osDelay(300);
+//	  msg=5000;
+//	  xQueueSend(xVisualQueueHandle, &msg, 0);
+//	  osDelay(300);
+//	  msg=0;
+//	  xQueueSend(xVisualQueueHandle, &msg, 0);
+//	  osDelay(300);
+//	  msg=-5000;
+//	  xQueueSend(xVisualQueueHandle, &msg, 0);
+//	  osDelay(300);
+
+	  /* Send okay if it found the device to termite*/
+//	  // Check device ID
+//	  lis2dw12_device_id_get(&lis2dw12, &whoamI);
+//	  printf("LIS2DW12_ID %s\n", (whoamI == LIS2DW12_ID) ? "OK" : "FAIL");
   }
   /* USER CODE END StartAcceleroTask */
 }
