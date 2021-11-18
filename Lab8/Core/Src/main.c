@@ -116,16 +116,56 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
 
+	static const uint8_t code[5] = { 7, 9, 3, 2, 12 };
+//	uint8_t init_value = 0;
+	static uint8_t code_pos = 0;
+	static uint32_t last_time;
+
 	if (key != -1)
 	{
-		printf("stisknuto: %d \n", key);
+//		printf("stisknuto: %d \n", key);
 		HAL_Delay(500);
+
+		if (key == code[code_pos])
+		{
+			printf("Enetered value nr. %d is correct. \n", code_pos+1);
+			code_pos++;
+
+			last_time = HAL_GetTick();
+
+
+			if (code_pos == (sizeof(code)/sizeof(code[0])))
+			{
+				printf("Congrats, you entered the right code. \n");
+				HAL_GPIO_WritePin(LD1_GPIO_Port, LD1_Pin, GPIO_PIN_SET);
+				HAL_Delay(5000);
+				HAL_GPIO_WritePin(LD1_GPIO_Port, LD1_Pin, GPIO_PIN_RESET);
+			}
+		}
+
+
+
+		else
+		{
+			printf("Enetered value nr. %d is incorrect. \n", code_pos+1);
+			code_pos = 0;
+		}
+
+		HAL_Delay(100);
 		key = -1;
+
 	}
 
-	HAL_GPIO_TogglePin(LD1_GPIO_Port, LD1_Pin);
-	HAL_Delay(250);
+
+
+
+	if ((HAL_GetTick()-last_time >= 5000) && (code_pos != 0))
+	  {
+		printf("Time out, enter code over again. \n");
+		code_pos = 0;
+	  }
   }
+
   /* USER CODE END 3 */
 }
 
