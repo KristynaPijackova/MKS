@@ -126,14 +126,16 @@ int main(void)
 //		printf("stisknuto: %d \n", key);
 		HAL_Delay(500);
 
+		// if correct value
 		if (key == code[code_pos])
 		{
 			printf("Enetered value nr. %d is correct. \n", code_pos+1);
 			code_pos++;
 
+			// start counting elapsed time
 			last_time = HAL_GetTick();
 
-
+			// all values correctly entered - turn on led, reset
 			if (code_pos == (sizeof(code)/sizeof(code[0])))
 			{
 				printf("Congrats, you entered the right code. \n");
@@ -143,8 +145,7 @@ int main(void)
 			}
 		}
 
-
-
+		// false value entered, reset
 		else
 		{
 			printf("Enetered value nr. %d is incorrect. \n", code_pos+1);
@@ -153,12 +154,9 @@ int main(void)
 
 		HAL_Delay(100);
 		key = -1;
-
 	}
 
-
-
-
+    // time out for entering code
 	if ((HAL_GetTick()-last_time >= 5000) && (code_pos != 0))
 	  {
 		printf("Time out, enter code over again. \n");
