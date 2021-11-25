@@ -55,12 +55,55 @@ UART_HandleTypeDef huart3;
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_USART3_UART_Init(void);
+void circle(uint8_t r);
+void step(int32_t dx, int32_t dy, int8_t mys);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+void circle(uint8_t r)
+{
+	  float x = r;
+	  float y = 0;
+
+	  int32_t sx;
+	  int32_t sy;
+	  int32_t dx;
+	  int32_t dy;
+
+	for(uint16_t phi= 0; phi<=360; phi = phi + 5)
+	{
+	 	  sx = x;
+		  sy = y;
+
+		  x = r*cos(phi*PI/180);
+		  y = r*sin(phi*PI/180);
+
+		  dx = x-sx;
+		  dy = y-sy;
+
+		  step(dx,dy,0x01);
+	}
+
+	x = 0;
+	y = 0;
+	step(x,y,0x00);
+}
+
+void step(int32_t dx, int32_t dy, int8_t mys)
+{
+	uint8_t buff[4];
+	buff[0] = mys; // stiskni leve tlacitko 0x01
+	buff[1] = (int8_t)(dx);
+	buff[2] = (int8_t)(dy);
+	buff[3] = 0; // bez scrollu
+
+	USBD_HID_SendReport(&hUsbDeviceFS, buff, sizeof(buff));
+	HAL_Delay(USBD_HID_GetPollingInterval(&hUsbDeviceFS));
+}
+
 
 
 /* USER CODE END 0 */
@@ -107,30 +150,27 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	  uint8_t buff[4];
-	  buff[1] = (int8_t)(10); // posun X +10
-	  buff[2] = (int8_t)(-3); // posun Y -3
-
-	  int8_t r = 3;
-	  float x = 0;
-	  float y = 0;
-
 
 	  if (HAL_GPIO_ReadPin(BTN_GPIO_Port,BTN_Pin)==1)
 	  {
-		  for(uint16_t phi= 0; phi<360; phi = phi + 5)
-		  {
-			  x = r*cos(phi*PI/180);
-			  y = r*sin(phi*PI/180);
-
-			  buff[0] = 0x01; // stiskni leve tlacitko 0x01
-
-			  buff[1] = (int8_t)(x);
-			  buff[2] = (int8_t)(y);
-			  buff[3] = 0; // bez scrollu
-			  USBD_HID_SendReport(&hUsbDeviceFS, buff, sizeof(buff));
-			  HAL_Delay(USBD_HID_GetPollingInterval(&hUsbDeviceFS));
-		  }
+		  uint8_t r = 100;
+		  circle(r);
+	  }
+//		  for(uint16_t phi= 0; phi<360; phi = phi + 5)
+//		  {
+//			  x = r*cos(phi*PI/180);
+//			  y = r*sin(phi*PI/180);
+//
+//			  buff[0] = 0x01; // stiskni leve tlacitko 0x01
+//			  buff[1] = (int8_t)(x);
+//			  buff[2] = (int8_t)(y);
+//			  buff[3] = 0; // bez scrollu
+//			  USBD_HID_SendReport(&hUsbDeviceFS, buff, sizeof(buff));
+//			  HAL_Delay(USBD_HID_GetPollingInterval(&hUsbDeviceFS));
+//		  }
+//
+	  if (HAL_GPIO_ReadPin(BTN_GPIO_Port,BTN_Pin)==1)
+	  {
 
 	  }
 
