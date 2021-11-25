@@ -205,12 +205,12 @@ int main(void)
 		  int32_t y1 = 0;
 		  uint8_t buff[4];
 
-		  buff[0] = 0x01; // stiskni leve tlacitko 0x01
-		  buff[1] = (int8_t)(-40);
-		  buff[2] = (int8_t)(0);
-		  buff[3] = 0; // bez scrollu
-		  USBD_HID_SendReport(&hUsbDeviceFS, buff, sizeof(buff));
-		  HAL_Delay(USBD_HID_GetPollingInterval(&hUsbDeviceFS));
+//		  buff[0] = 0x01; // stiskni leve tlacitko 0x01
+//		  buff[1] = (int8_t)(-40);
+//		  buff[2] = (int8_t)(0);
+//		  buff[3] = 0; // bez scrollu
+//		  USBD_HID_SendReport(&hUsbDeviceFS, buff, sizeof(buff));
+//		  HAL_Delay(USBD_HID_GetPollingInterval(&hUsbDeviceFS));
 
 		  circle(r);
 
@@ -224,11 +224,13 @@ int main(void)
 
 		  step(45,30,mys);
 
-		  half_circle(r=60);
+		  half_circle(60);
 
 		  step(-25,-30,0x00);
 
+		  step(0,0,0x01);
 		  step(45,30,0x01);
+		  step(0,0,0x00);
 
 	  }
 //		  for(uint16_t phi= 0; phi<360; phi = phi + 5)
