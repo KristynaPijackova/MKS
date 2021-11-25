@@ -56,6 +56,7 @@ void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_USART3_UART_Init(void);
 void circle(uint8_t r);
+void half_circle(uint8_t r);
 void step(int32_t dx, int32_t dy, int8_t mys);
 /* USER CODE BEGIN PFP */
 
@@ -92,6 +93,35 @@ void circle(uint8_t r)
 	step(x,y,0x00);
 }
 
+void half_circle(uint8_t r)
+{
+	  float x = r;
+	  float y = 0;
+
+	  int32_t sx;
+	  int32_t sy;
+	  int32_t dx;
+	  int32_t dy;
+
+	for(uint16_t phi= 0; phi<=180; phi = phi + 5)
+	{
+	 	  sx = x;
+		  sy = y;
+
+		  x = r*cos(phi*PI/180);
+		  y = r*sin(phi*PI/180);
+
+		  dx = x-sx;
+		  dy = y-sy;
+
+		  step(dx,dy,0x01);
+	}
+
+	x = 0;
+	y = 0;
+	step(x,y,0x00);
+}
+
 void step(int32_t dx, int32_t dy, int8_t mys)
 {
 	uint8_t buff[4];
@@ -104,7 +134,20 @@ void step(int32_t dx, int32_t dy, int8_t mys)
 	HAL_Delay(USBD_HID_GetPollingInterval(&hUsbDeviceFS));
 }
 
+//void smiley()
+//{
+//	uint8_t r = 200;
+//	int32_t x = -50;
+//	int32_t y = -20;
+//	int8_t mys = 0x00;
+//
+//	circle(r);
+////	step(x=-50; y=-20; mys=0x00;);
+//	step(x,y,mys);
+//	step(x,y,mys);
 
+
+//}
 
 /* USER CODE END 0 */
 
@@ -154,7 +197,39 @@ int main(void)
 	  if (HAL_GPIO_ReadPin(BTN_GPIO_Port,BTN_Pin)==1)
 	  {
 		  uint8_t r = 100;
+		  uint8_t r1 = 30;
+		  int32_t x = -25;
+		  int32_t y = -20;
+		  int8_t mys = 0x00;
+		  int32_t x1 = -50;
+		  int32_t y1 = 0;
+		  uint8_t buff[4];
+
+		  buff[0] = 0x01; // stiskni leve tlacitko 0x01
+		  buff[1] = (int8_t)(-40);
+		  buff[2] = (int8_t)(0);
+		  buff[3] = 0; // bez scrollu
+		  USBD_HID_SendReport(&hUsbDeviceFS, buff, sizeof(buff));
+		  HAL_Delay(USBD_HID_GetPollingInterval(&hUsbDeviceFS));
+
 		  circle(r);
+
+		  step(x,y,mys);
+
+		  circle(r1);
+
+		  step(x1,y1,mys);
+
+		  circle(r1);
+
+		  step(45,30,mys);
+
+		  half_circle(r=60);
+
+		  step(-25,-30,0x00);
+
+		  step(45,30,0x01);
+
 	  }
 //		  for(uint16_t phi= 0; phi<360; phi = phi + 5)
 //		  {
