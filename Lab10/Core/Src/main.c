@@ -24,6 +24,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "lwip/apps/httpd.h"
 extern void tcpecho_init(void);
 extern void telnet_init(void);
 /* USER CODE END Includes */
@@ -297,8 +298,12 @@ void StartDefaultTask(void const * argument)
   /* USER CODE BEGIN 5 */
 
   /* Initialize tcp echo server */
+  // open PuTTY and set the VD-STM-nn / port number / raw
   tcpecho_init();
   telnet_init();
+
+  /* Initialize HTTP server */
+  httpd_init();
 
   /* Infinite loop */
   for(;;)

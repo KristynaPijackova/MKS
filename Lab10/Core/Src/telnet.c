@@ -106,7 +106,7 @@ static void telnet_thread(void *arg)
 }
 
 /*-----------------------------------------------------------------------------------*/
-
+// bude reagovat na jednotlivé přijaté bajty a skládat je do pole
 static void telnet_byte_available(uint8_t c, struct netconn *conn)
 {
 	 static uint16_t cnt;
@@ -120,7 +120,6 @@ static void telnet_byte_available(uint8_t c, struct netconn *conn)
 	 }
 }
 
-
 /*-----------------------------------------------------------------------------------*/
 
 static void telnet_process_command(char *cmd, struct netconn *conn)
@@ -130,6 +129,7 @@ static void telnet_process_command(char *cmd, struct netconn *conn)
 	token = strtok(cmd," ");
 
 	// What to do when it recieves a command
+	// Check if communication works, turn leds on/off, get the led status
 	if (strcasecmp(token, "HELLO") == 0)
 	{
 		sprintf(s, "Komunikace OK \r\n");
