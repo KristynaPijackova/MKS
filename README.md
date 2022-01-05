@@ -23,7 +23,7 @@ Bez externí knihovny
 
 000 až 999
 
-[Lab3 - KÓD - main.c](https://github.com/KristynaPijackova/MKS/blob/main/Lab2/Src/main.c)
+[Lab3 - KÓD - main.c](https://github.com/KristynaPijackova/MKS/blob/main/Lab3/Src/main.c)
 
 [Lab3 - KÓD - stc.c](https://github.com/KristynaPijackova/MKS/blob/6fa2d8dabc4dc8e99e4b9c949904318774f6651d/Lab3/Src/stc.c)
 
@@ -44,7 +44,9 @@ ___
 
 [Lab4 - KÓD - Konfigurace ADC a zobrazení](https://github.com/KristynaPijackova/MKS/blob/4a6315745b04441d70fa616013d2575df6ab3022/Lab4/Core/Src/main.c)
 
-[Lab4 - KÓD - Exponenciální kumulace ADC hodnoty, Vícekanálové ADC, interní reference a teplotní čidlo](https://github.com/KristynaPijackova/MKS/blob/main/Lab2/Src/main.c)
+[Lab4 - KÓD - Konfigurace ADC - rozšíření stc.c o bargraf](https://github.com/KristynaPijackova/MKS/blob/main/Lab4/Core/Src/stc.c)
+
+[Lab4 - KÓD - Exponenciální kumulace ADC hodnoty, Vícekanálové ADC, interní reference a teplotní čidlo](https://github.com/KristynaPijackova/MKS/blob/main/Lab4/Core/Src/main.c)
 ___
 
 [Lab5 - zadání - UART komunikace s DMA, EEPROM na I2C](https://github.com/KristynaPijackova/MKS/blob/main/Zadani/MKS_cv05.pdf)       
@@ -53,7 +55,7 @@ ___
 
 [Lab5 - KÓD - Obsluha textového protokolu](https://github.com/KristynaPijackova/MKS/blob/fb15ad651c29b7ab4ef59f03ecc4210dadd03c2f/Lab5/Core/Src/main.c)
 
-[Lab5 - KÓD - Externí EEPROM](https://github.com/KristynaPijackova/MKS/blob/main/Lab2/Src/main.c)
+[Lab5 - KÓD - Externí EEPROM](https://github.com/KristynaPijackova/MKS/blob/main/Lab5/Core/Src/main.c)
 ___
 
 [Lab6 - zadání - Teplotní čidla DS18B20 a NTC](https://github.com/KristynaPijackova/MKS/blob/main/Zadani/MKS_cv06.pdf) 
