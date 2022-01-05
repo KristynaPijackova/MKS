@@ -70,21 +70,21 @@ ___
 [Lab7 - KÓD - Read accelerometer and turn on LEDs based on coordinates](https://github.com/KristynaPijackova/MKS/blob/main/Lab7/Core/Src/main.c)
 ___
 
-[Lab8 - zadání - Maticová klávesnice a kódový zámek]((https://github.com/KristynaPijackova/MKS/blob/main/Zadani/MKS_cv08.pdf))        
+[Lab8 - zadání - Maticová klávesnice a kódový zámek](https://github.com/KristynaPijackova/MKS/blob/main/Zadani/MKS_cv08.pdf)       
 
 [Lab8 - KÓD -  serial communication, setting up key matrix](https://github.com/KristynaPijackova/MKS/blob/ae17d6db8c34d1f6ec59af1fd10e47bf6061dfe5/Lab8/Core/Src/main.c)
 
 [Lab8 - KÓD - code lock](https://github.com/KristynaPijackova/MKS/blob/main/Lab8/Core/Src/main.c)
 ___
 
-[Lab9 - zadání - USB myš standardu HID]((https://github.com/KristynaPijackova/MKS/blob/main/Zadani/MKS_cv09.pdf)) 
+[Lab9 - zadání - USB myš standardu HID](https://github.com/KristynaPijackova/MKS/blob/main/Zadani/MKS_cv09.pdf) 
 
 [Lab9 - KÓD - kruznice](https://github.com/KristynaPijackova/MKS/blob/3c9c680c224de3a0c166a089f3a0253ba64485cd/Lab9/Core/Src/main.c_)
 
 [Lab9 - KÓD - smajlik a skaredy nos](https://github.com/KristynaPijackova/MKS/blob/main/Lab9/Core/Src/main.c)
 ___
 
-[Lab10 - zadání - Ethernet, TCP klient a server]((https://github.com/KristynaPijackova/MKS/blob/main/Zadani/MKS_cv010.pdf))        
+[Lab10 - zadání - Ethernet, TCP klient a server](https://github.com/KristynaPijackova/MKS/blob/main/Zadani/MKS_cv010.pdf)   
 
 [Lab10 - KÓD - ethernet conf, tcpecho, telnet](https://github.com/KristynaPijackova/MKS/blob/31094142d3c50e8ccdfcc3fe1ddd9d4574041282/Lab10/Core/Src/main.c)
 
