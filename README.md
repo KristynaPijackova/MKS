@@ -87,7 +87,7 @@ ___
 
 [Lab9 - zadání - USB myš standardu HID](https://github.com/KristynaPijackova/MKS/blob/main/Zadani/MKS_cv09.pdf) 
 
-[Lab9 - KÓD - kruznice](https://github.com/KristynaPijackova/MKS/blob/3c9c680c224de3a0c166a089f3a0253ba64485cd/Lab9/Core/Src/main.c_)
+[Lab9 - KÓD - kruznice](https://github.com/KristynaPijackova/MKS/blob/3c9c680c224de3a0c166a089f3a0253ba64485cd/Lab9/Core/Src/main.c)
 
 [Lab9 - KÓD - smajlik a skaredy nos](https://github.com/KristynaPijackova/MKS/blob/main/Lab9/Core/Src/main.c)
 ___
