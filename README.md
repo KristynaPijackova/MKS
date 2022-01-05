@@ -31,10 +31,10 @@ Bez externí knihovny
 
 S externí knihovnou HAL
 
-[Lab3 - KÓD](https://github.com/KristynaPijackova/MKS/blob/main/Zadani/MKS_cv04.pdf)
+[Lab3 - KÓD](https://github.com/KristynaPijackova/MKS/blob/main/Lab3_with_lib/Core/Src/main.c)
 ___
 
-[Lab4 - zadání - A/D převodník a bargraf ](https://github.com/KristynaPijackova/MKS/blob/main/Lab4/)    
+[Lab4 - zadání - A/D převodník a bargraf ](https://github.com/KristynaPijackova/MKS/blob/main/Zadani/MKS_cv04.pdf)    
 
 [Lab4 - KÓD - Konfigurace ADC a zobrazení](https://github.com/KristynaPijackova/MKS/blob/4a6315745b04441d70fa616013d2575df6ab3022/Lab4/Core/Src/main.c)
 
