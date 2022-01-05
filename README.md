@@ -84,7 +84,7 @@ ___
 [Lab9 - KÓD - smajlik a skaredy nos](https://github.com/KristynaPijackova/MKS/blob/main/Lab9/Core/Src/main.c)
 ___
 
-[Lab10 - zadání - Ethernet, TCP klient a server](https://github.com/KristynaPijackova/MKS/blob/main/Zadani/MKS_cv010.pdf)   
+[Lab10 - zadání - Ethernet, TCP klient a server](https://github.com/KristynaPijackova/MKS/blob/main/Zadani/MKS_cv10.pdf)   
 
 [Lab10 - KÓD - ethernet conf, tcpecho, telnet](https://github.com/KristynaPijackova/MKS/blob/31094142d3c50e8ccdfcc3fe1ddd9d4574041282/Lab10/Core/Src/main.c)
 
