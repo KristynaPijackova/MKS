@@ -32,6 +32,12 @@ Bez externí knihovny
 S externí knihovnou HAL
 
 [Lab3 - KÓD](https://github.com/KristynaPijackova/MKS/blob/main/Lab3_with_lib/Core/Src/main.c)
+
+[Lab3 - KÓD - stc.c](https://github.com/KristynaPijackova/MKS/blob/main/Lab3_with_lib/Core/Src/stc.c)
+
+[Lab3 - KÓD - stc.h](https://github.com/KristynaPijackova/MKS/blob/main/Lab3_with_lib/Core/Src/sct.h)
+
+
 ___
 
 [Lab4 - zadání - A/D převodník a bargraf ](https://github.com/KristynaPijackova/MKS/blob/main/Zadani/MKS_cv04.pdf)    
